@@ -32,10 +32,11 @@ router.post(
   fetchuser,
   async (req, res) => {
     try {
+      let status = false;
       //check the validation and if errors occured📍 then send bad request with error msg📧
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() }); //send errors array🧰🛠
+        return res.status(400).json({status, errors: errors.array() }); //send errors array🧰🛠
       }
 
       const { title, description, tag } = req.body;
@@ -47,10 +48,11 @@ router.post(
       });
 
       const savenote = await note.save();
-      res.json(savenote);
+      status = true;
+      res.json(status, savenote);
     } catch (err) {
-      console.error(err);
-      res.status(500).send("Internal server errors2!!" + err);
+      console.error(err.massage);
+      res.status(500).send("Internal server errors!!" );
     }
   }
 );
@@ -73,6 +75,7 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
   }
 
   try {
+    let status = false
     //Find the node to be updated and update it
     //check if the node own that user
     let note = await Note.findById(req.params.id);
@@ -89,10 +92,11 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
       { $set: newNode },
       { new: true }
     );
-    res.json({ note });
+    status = true
+    res.json({status, note });
   } catch (err) {
     console.error(err.massage);
-    res.status(500).send("Internal server errors2!!");
+    res.status(500).send("Internal server errors!!");
   }
 });
 
@@ -104,6 +108,7 @@ router.delete(
   fetchuser,
   async (req, res) => {
     try {
+      let status = false
      let note = await Note.findById(req.params.id);
 
 
@@ -115,7 +120,8 @@ router.delete(
      }
 
      note = await Note.findByIdAndDelete(req.params.id);
-     res.json({"success":"Note has been deleted", note: note});
+     status = true
+     res.json({status, note: note});
     } catch (err) {
       console.error(err.massage);
       res.status(500).send("Internal server errors2!!");
