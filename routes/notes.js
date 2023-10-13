@@ -49,10 +49,10 @@ router.post(
 
       const savenote = await note.save();
       status = true;
-      res.json(status, savenote);
+      res.json({note:savenote, status})
     } catch (err) {
       console.error(err.massage);
-      res.status(500).send("Internal server errors!!" );
+      res.status(500).send("Internal server errors!!" , err);
     }
   }
 );
@@ -93,7 +93,7 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
       { new: true }
     );
     status = true
-    res.json({status, note });
+    res.json({status, note })
   } catch (err) {
     console.error(err.massage);
     res.status(500).send("Internal server errors!!");
@@ -121,7 +121,7 @@ router.delete(
 
      note = await Note.findByIdAndDelete(req.params.id);
      status = true
-     res.json({status, note: note});
+     res.json({status, note})
     } catch (err) {
       console.error(err.massage);
       res.status(500).send("Internal server errors2!!");
