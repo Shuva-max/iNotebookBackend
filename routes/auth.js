@@ -118,4 +118,13 @@ router.post('/getuser', fetchuser, async (req, res)=>{  //fatchuser is middlewar
     }
 })
 
+router.get('/stserver', async (req, res)=>{  //fatchuser is middleware (nothing but a function)🎭
+    try {
+        res.status(200).json({massege: 'connected to the server...', path: req.route.path})       
+    } catch (error) {
+        console.error(error.massage);
+        res.status(500).send("Internal server errors!!");
+    }
+})
+
 module.exports = router ;
