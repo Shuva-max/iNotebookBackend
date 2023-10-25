@@ -118,6 +118,87 @@ router.post('/getuser', fetchuser, async (req, res)=>{  //fatchuser is middlewar
     }
 })
 
+
+/**** Route 4 : change user pass using authToken and add user id : 
+* POST- "/api/auth/changepass" , 
+* login require🛴🔛    ******/
+
+router.post('/changepass', [ body('password', "password must contain atleast 5 charactors").isLength({min: 5}) ], fetchuser, 
+    async (req, res)=>{  //fatchuser is middleware (nothing but a function)🎭
+        //check the validation and if errors occured then send bad request with error msg📧
+        const errors = validationResult(req);
+        let status = false;
+        if (!errors.isEmpty()) {
+        return res.status(400).json({status, errors: errors.array() });
+        }
+
+        try {
+            const {password, newpass} = req.body;
+            const userid = req.user.id; //getting from fetchuser middleware🛒
+            let user = await User.findById(userid);
+            const passwordCompare = await bcrypt.compare(password, user.password);  
+
+            if(!passwordCompare){
+                res.status(401).send({msg: "Put your right credential!!!"})
+            } else {
+                const salt = await bcrypt.genSalt(10);
+                const secPass = await bcrypt.hash(newpass, salt);
+                user.password = secPass;
+                user = await User.findByIdAndUpdate(user._id,
+                    { $set: user },
+                    { new: true } )
+
+                status = true;
+                res.send({status, user});
+            }
+        
+        } catch (error) {
+            console.error(error.massage);
+            res.status(500).send("Internal server errors!!");
+        }
+})
+
+
+/**** Route 5 : rename a exiting user 
+* POST- "/api/auth/changename" , 
+* login require🛴🔛    ******/
+
+router.post('/changename',[body('newname', "Name must contain atleast 3 charactors").isLength({min: 3}),], fetchuser, async (req, res)=>{  //fatchuser is middleware (nothing but a function)🎭
+    //check the validation and if errors occured then send bad request with error msg📧
+    const errors = validationResult(req);
+    let status = false;
+    if (!errors.isEmpty()) {
+    return res.status(400).json({status, errors: errors.array() });
+    }
+
+    try {
+        const {password, newname} = req.body;
+        const userid = req.user.id; //getting from fetchuser middleware🛒
+        let user = await User.findById(userid);
+        const passwordCompare = await bcrypt.compare(password, user.password);  
+
+        if(!passwordCompare){
+            res.status(401).send({msg: "Put your right credential!!!"})
+        } else {
+            user.name = newname;
+            user = await User.findByIdAndUpdate(user._id,
+                { $set: user },
+                { new: true } )
+
+            status = true;
+            res.send({status, user});
+        }
+    
+    } catch (error) {
+        console.error(error.massage);
+        res.status(500).send("Internal server errors!!");
+    }
+})
+
+
+/**** Route 6 : starting the backend service  
+* GET- "/api/auth/stserver"   ******/
+
 router.get('/stserver', async (req, res)=>{  //fatchuser is middleware (nothing but a function)🎭
     try {
         res.status(200).json({massege: 'connected to the server...', path: req.route.path})       
